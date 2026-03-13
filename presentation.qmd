@@ -1,21 +1,104 @@
 ---
-title: "Webscraping Beispiel"
-author: "GitHub Copilot"
-format: revealjs
+title: "K-Nearest Neighbors (KNN Regression)"
+subtitle: "Vorhersage durch Ähnlichkeit"
+author: "Gruppe 8"
+format: 
+  revealjs:
+    theme: sky
+    transition: slide
+    slide-number: true
+    chalkboard: true
 ---
 
-## Webscraping mit Python
+## Was ist KNN?
 
-Webscraping ist eine Technik, um Daten von Webseiten zu extrahieren.
+*   **KNN** = K-Nearest Neighbors
+*   Ein **Lazy Learning** Algorithmus: Kein explizites Training nötig.
+*   **Intuition:** "Sag mir, wer deine Nachbarn sind, und ich sag dir, wer du bist."
+*   Funktioniert für:
+    *   **Klassifikation** (Kategorien)
+    *   **Regression** (Numerische Werte)
 
-## Warum BeautifulSoup?
+## Klassifikation vs. Regression
 
-- Einfache Syntax
-- Behandelt unstrukturiertes HTML gut
-- Große Community
+::: {.columns}
+::: {.column width="50%"}
+### Klassifikation
+* **Ziel:** Kategorie (Label)
+* **Wahl:** Mehrheitsentscheidung (Voting)
+* **Beispiel:** Apfel oder Birne?
+:::
 
-## Nächste Schritte
+::: {.column width="50%"}
+### Regression
+* **Ziel:** Kontinuierlicher Wert
+* **Wahl:** Mittelwert der Nachbarn
+* **Beispiel:** Hauspreis-Vorhersage
+:::
+:::
 
-1. Daten bereinigen
-2. In CSV speichern
-3. Visualisieren
+## KNN Regression
+
+*   Ziel: Vorhersage eines **kontinuierlichen Wertes**.
+*   **Ablauf:**
+    1.  Finde die $k$ nächsten Nachbarn eines neuen Datenpunkts.
+    2.  Berechne den **Mittelwert** (oder gewichteten Mittelwert) der Zielwerte dieser Nachbarn.
+    3.  Dieser Durchschnitt ist die Vorhersage.
+
+## Die Wahl von $k$
+
+* **Kleines $k$** (z.B. $k=1$): 
+  * Reagiert stark auf Rauschen/Ausreißer.
+  * Risiko von **Overfitting**.
+* **Großes $k$:**
+  * Glättet die Vorhersage zu stark.
+  * Risiko von **Underfitting**.
+* **Tipp:** Bei Klassifikation oft ungerades $k$ wählen (Zünglein an der Waage).
+
+## Warum spielt die Skalierung eine riesige Rolle? {.smaller}
+
+KNN basiert auf **Distanzen** (z.B. Euklidische Distanz).
+
+$$d = \sqrt{\sum_{i=1}^{n} (x_i - y_i)^2}$$
+
+*   **Das Problem:** Merkmale mit großen Zahlenwerten dominieren die Distanzberechnung.
+*   **Beispiel:** 
+    *   Alter (0-100 Jahre) vs. Einkommen (0-100.000 €).
+    *   Ein Unterschied von 1 € im Einkommen wirkt genauso stark wie ein Unterschied von 1 Jahr im Alter, obwohl das Einkommen viel stärker streut.
+*   **Lösung:** Normalisierung oder Standardisierung (z.B. `StandardScaler` oder `MinMaxScaler`).
+
+## Anwendung: Empfehlungssysteme
+
+*   **Streaming-Dienste** (Netflix, Spotify):
+    *   "Nutzer, die diesen Film mochten, schauen auch..."
+    *   Ähnlichkeit wird basierend auf Sehgewohnheiten, Genres und Bewertungen berechnet.
+*   **User-Based Filtering:** Wenn Nutzer A und Nutzer B 90% Übereinstimmung in ihren Vorlieben haben, ist Nutzer B ein "naher Nachbar" von A.
+
+## Vor- und Nachteile
+
+::: {.columns}
+::: {.column width="50%"}
+### Vorteile
+* Einfach & intuitiv.
+* Kein Training nötig (Lazy).
+* Funktioniert für Klassifikation & Regression.
+:::
+
+::: {.column width="50%"}
+### Nachteile
+* Rechenintensiv bei vielen Daten.
+* Sensibel gegenüber Skalierung.
+* "Fluch der Dimensionalität".
+:::
+:::
+
+## Implementierung mit Scikit-Learn
+
+Nutzt die Klasse `KNeighborsRegressor` aus `sklearn.neighbors`.
+
+## Zusammenfassung
+
+*   **Einfach:** Leicht zu verstehen und zu implementieren.
+*   **Sensibel:** Reagiert extrem auf Skalierung und Ausreißer.
+*   **Rechenintensiv:** Langsam bei sehr großen Datensätzen ("Fluch der Dimensionalität").
+*   **Vielseitig:** Perfekt für Empfehlungen und Schätzungen.
