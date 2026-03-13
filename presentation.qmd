@@ -1,0 +1,21 @@
+---
+title: "Webscraping Beispiel"
+author: "GitHub Copilot"
+format: revealjs
+---
+
+## Webscraping mit Python
+
+Webscraping ist eine Technik, um Daten von Webseiten zu extrahieren.
+
+## Warum BeautifulSoup?
+
+- Einfache Syntax
+- Behandelt unstrukturiertes HTML gut
+- Große Community
+
+## Nächste Schritte
+
+1. Daten bereinigen
+2. In CSV speichern
+3. Visualisieren
