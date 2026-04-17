@@ -9,8 +9,8 @@
 <link href="presentation_files/libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
   <meta name="generator" content="quarto-1.8.27">
 
-  <meta name="author" content="GitHub Copilot">
-  <title>Webscraping Beispiel</title>
+  <meta name="author" content="Gruppe 8">
+  <title>K-Nearest Neighbors (KNN)</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -28,11 +28,79 @@
       margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
       vertical-align: middle;
     }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
-  <link rel="stylesheet" href="presentation_files/libs/revealjs/dist/theme/quarto-534cd8e3a96973385dffff3f4709048d.css">
+  <link rel="stylesheet" href="presentation_files/libs/revealjs/dist/theme/quarto-7aaf31681eed659f0200bcc8fe9a56fc.css">
   <link href="presentation_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="presentation_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="presentation_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="presentation_files/libs/revealjs/plugin/reveal-chalkboard/font-awesome/css/all.css" rel="stylesheet">
+  <link href="presentation_files/libs/revealjs/plugin/reveal-chalkboard/style.css" rel="stylesheet">
   <link href="presentation_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
   <style type="text/css">
     .reveal div.sourceCode {
@@ -127,40 +195,156 @@
     <div class="slides">
 
 <section id="title-slide" class="quarto-title-block center">
-  <h1 class="title">Webscraping Beispiel</h1>
+  <h1 class="title">K-Nearest Neighbors (KNN)</h1>
+  <p class="subtitle">Einfach • Intuitiv • Ähnlichkeitsbasiert</p>
 
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
 <div class="quarto-title-author-name">
-GitHub Copilot 
+Gruppe 8 
 </div>
 </div>
 </div>
 
 </section>
-<section id="webscraping-mit-python" class="slide level2">
-<h2>Webscraping mit Python</h2>
-<p>Webscraping ist eine Technik, um Daten von Webseiten zu extrahieren.</p>
-</section>
-<section id="warum-beautifulsoup" class="slide level2">
-<h2>Warum BeautifulSoup?</h2>
+<section id="was-ist-knn" class="slide level2">
+<h2>Was ist KNN?</h2>
 <ul>
-<li>Einfache Syntax</li>
-<li>Behandelt unstrukturiertes HTML gut</li>
-<li>Große Community</li>
+<li><strong>Grundkonzept:</strong> Ähnlichkeit führt zu Vorhersage</li>
+<li><strong>Lazy Learner:</strong> Speichert Daten, kein echtes Training</li>
+<li><strong>Non-parametric:</strong> Keine Annahmen über Datenverteilung</li>
+<li><strong>Vielseitig:</strong> Einsetzbar für:
+<ul>
+<li><strong>Klassifikation</strong> (Kategorien)</li>
+<li><strong>Regression</strong> (Zahlenwerte)</li>
+</ul></li>
 </ul>
 </section>
-<section id="nächste-schritte" class="slide level2">
-<h2>Nächste Schritte</h2>
+<section id="der-knn-workflow" class="slide level2">
+<h2>Der KNN-Workflow</h2>
 <ol type="1">
-<li>Daten bereinigen</li>
-<li>In CSV speichern</li>
-<li>Visualisieren</li>
+<li><strong>K wählen:</strong> Anzahl der Nachbarn festlegen</li>
+<li><strong>Distanz messen:</strong> Differenz zum Zielpunkt berechnen</li>
+<li><strong>Sortieren:</strong> Die <span class="math inline">\(K\)</span> nächsten Punkte finden</li>
+<li><strong>Ergebnis liefern:</strong>
+<ul>
+<li><strong>Klassifikation:</strong> Mehrheitsvoting</li>
+<li><strong>Regression:</strong> Mittelwert der Nachbarn</li>
+</ul></li>
 </ol>
+</section>
+<section id="distanzmetriken" class="slide level2">
+<h2>Distanzmetriken</h2>
+<div class="columns">
+<div class="column" style="width:60%;">
+<ul>
+<li><strong>Euklidisch:</strong> Der direkte Weg (“Luftlinie”)
+<ul>
+<li><span class="math inline">\(d = \sqrt{\sum (x_i - y_i)^2}\)</span></li>
+</ul></li>
+<li><strong>Manhattan:</strong> Gitternetz (“Taxicab”)
+<ul>
+<li><span class="math inline">\(d = \sum |x_i - y_i|\)</span></li>
+</ul></li>
+<li><strong>Minkowski:</strong> Verallgemeinerte Form
+<ul>
+<li>Parametrierbar über <span class="math inline">\(p\)</span></li>
+</ul></li>
+</ul>
+</div><div class="column" style="width:40%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="https://media.geeksforgeeks.org/wp-content/uploads/20250512150738992167/Calculate-Data.webp"></p>
+<figcaption>Distanz-Vergleich</figcaption>
+</figure>
+</div>
+</div></div>
+</section>
+<section id="die-macht-von-k" class="slide level2">
+<h2>Die Macht von ‘K’</h2>
+<ul>
+<li><strong>K = 1:</strong>
+<ul>
+<li>Sehr flexibel, aber störanfällig (Rauschen)</li>
+<li>Gefahr von <strong>Overfitting</strong></li>
+</ul></li>
+<li><strong>K = hoch:</strong>
+<ul>
+<li>Stabile Vorhersagen, aber träge</li>
+<li>Gefahr von <strong>Underfitting</strong></li>
+</ul></li>
+<li><strong>Best Practice:</strong>
+<ul>
+<li>Nutze <strong>Cross-Validation</strong></li>
+<li>Wähle <strong>ungerade</strong> <span class="math inline">\(K\)</span> (Vermeidung von Remis)</li>
+</ul></li>
+</ul>
+</section>
+<section id="knn-implementierung-python" class="slide level2">
+<h2>KNN Implementierung (Python)</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href=""></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href=""></a><span class="im">from</span> collections <span class="im">import</span> Counter</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href=""></a><span class="kw">def</span> euclidean_distance(point1, point2):</span>
+<span id="cb2-2"><a href=""></a>    <span class="cf">return</span> np.sqrt(np.<span class="bu">sum</span>((np.array(point1) <span class="op">-</span> np.array(point2))<span class="op">**</span><span class="dv">2</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href=""></a><span class="kw">def</span> knn_predict(training_data, training_labels, test_point, k):</span>
+<span id="cb3-2"><a href=""></a>    distances <span class="op">=</span> []</span>
+<span id="cb3-3"><a href=""></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(training_data)):</span>
+<span id="cb3-4"><a href=""></a>        dist <span class="op">=</span> euclidean_distance(test_point, training_data[i])</span>
+<span id="cb3-5"><a href=""></a>        distances.append((dist, training_labels[i]))</span>
+<span id="cb3-6"><a href=""></a>    distances.sort(key<span class="op">=</span><span class="kw">lambda</span> x: x[<span class="dv">0</span>])</span>
+<span id="cb3-7"><a href=""></a>    k_nearest_labels <span class="op">=</span> [label <span class="cf">for</span> _, label <span class="kw">in</span> distances[:k]]</span>
+<span id="cb3-8"><a href=""></a>    <span class="cf">return</span> Counter(k_nearest_labels).most_common(<span class="dv">1</span>)[<span class="dv">0</span>][<span class="dv">0</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="code-analyse-schritt-für-schritt" class="slide level2">
+<h2>Code-Analyse (Schritt für Schritt)</h2>
+<ul>
+<li><strong>np.linalg.norm:</strong> Effiziente Berechnung der euklidischen Distanz.</li>
+<li><strong>np.argsort:</strong> Sortiert die Abstände und gibt die ursprünglichen Indizes zurück.</li>
+<li><strong>Counter:</strong> Zählt die Vorkommen der Labels in der Nachbarschaft.</li>
+<li><strong>most_common(1):</strong> Liefert das am häufigsten vorkommende Label zurück.</li>
+</ul>
+</section>
+<section id="pro-contra" class="slide level2">
+<h2>Pro &amp; Contra</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<h3 id="vorteile"><span style="color:green">Vorteile</span></h3>
+<ul>
+<li><strong>Simpel:</strong> Leicht zu verstehen</li>
+<li><strong>Vielseitig:</strong> Multi-Klassen möglich</li>
+<li><strong>Anpassungsfähig:</strong> Neue Daten sofort nutzbar</li>
+</ul>
+</div><div class="column" style="width:50%;">
+<h3 id="nachteile"><span style="color:red">Nachteile</span></h3>
+<ul>
+<li><strong>Rechenlast:</strong> Teuer bei Big Data</li>
+<li><strong>Skalierung:</strong> Normalisierung ein Muss!</li>
+<li><strong>Dimensionalität:</strong> Leidet bei zu vielen Features</li>
+</ul>
+</div></div>
+</section>
+<section id="wo-wird-es-genutzt" class="slide level2">
+<h2>Wo wird es genutzt?</h2>
+<ul>
+<li><strong>Empfehlungen:</strong> “Kunden, die X kauften, kauften auch Y”</li>
+<li><strong>Spam-Filter:</strong> Ähnlichkeit zu bekannten Spam-Mails</li>
+<li><strong>Medizin:</strong> Vergleich von Patientenprofilen</li>
+<li><strong>Genetik:</strong> Klassifizierung von Genmustern</li>
+</ul>
+</section>
+<section id="zusammenfassung" class="slide level2">
+<h2>Zusammenfassung</h2>
+<ul>
+<li>Basiert auf <strong>Nachbarschaft</strong></li>
+<li>Wichtigster Parameter: <strong>K</strong></li>
+<li>Kritischer Faktor: <strong>Distanzmetrik &amp; Skalierung</strong></li>
+<li>Ideal für: Kleine, klare Datensätze</li>
+</ul>
 
 </section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
+<p><img src="presentation_files/libs/quarto-html/light-border.css" class="slide-logo"></p>
 <div class="footer footer-default">
 
 </div>
@@ -173,6 +357,7 @@ GitHub Copilot
   <script src="presentation_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
   <script src="presentation_files/libs/revealjs/plugin/reveal-menu/menu.js"></script>
   <script src="presentation_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="presentation_files/libs/revealjs/plugin/reveal-chalkboard/plugin.js"></script>
   <script src="presentation_files/libs/revealjs/plugin/quarto-support/support.js"></script>
   
 
@@ -194,7 +379,8 @@ GitHub Copilot
 'autoAnimateDuration': 1,
 'autoAnimateUnmatched': true,
 'jumpToSlide': true,
-'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleChalkboard(event)\"><kbd>b</kbd> Toggle Chalkboard</a></li>\n<li class=\"slide-tool-item\" data-item=\"6\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleNotesCanvas(event)\"><kbd>c</kbd> Toggle Notes Canvas</a></li>\n<li class=\"slide-tool-item\" data-item=\"7\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.downloadDrawings(event)\"><kbd>d</kbd> Download Drawings</a></li>\n<li class=\"slide-tool-item\" data-item=\"8\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'chalkboard': {"buttons":true},
 'smaller': false,
  
         // Display controls in the bottom right corner
@@ -215,7 +401,7 @@ GitHub Copilot
         progress: true,
 
         // Display the page number of the current slide
-        slideNumber: false,
+        slideNumber: 'c/t',
 
         // 'all', 'print', or 'speaker'
         showSlideNumber: 'all',
@@ -320,7 +506,7 @@ GitHub Copilot
         previewLinks: false,
 
         // Transition style (none/fade/slide/convex/concave/zoom)
-        transition: 'none',
+        transition: 'fade',
 
         // Transition speed (default/fast/slow)
         transitionSpeed: 'default',
@@ -365,7 +551,7 @@ GitHub Copilot
         },
 
         // reveal.js plugins
-        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, RevealChalkboard, QuartoSupport,
 
           RevealMath,
           RevealNotes,

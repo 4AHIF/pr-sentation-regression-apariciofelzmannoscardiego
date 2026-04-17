@@ -1,104 +1,121 @@
 ---
-title: "K-Nearest Neighbors (KNN Regression)"
-subtitle: "Vorhersage durch Ähnlichkeit"
+title: "K-Nearest Neighbors (KNN)"
+subtitle: "Einfach • Intuitiv • Ähnlichkeitsbasiert"
 author: "Gruppe 8"
 format: 
   revealjs:
     theme: sky
-    transition: slide
+    transition: fade
     slide-number: true
     chalkboard: true
+    logo: presentation_files/libs/quarto-html/light-border.css
 ---
 
 ## Was ist KNN?
 
-*   **KNN** = K-Nearest Neighbors
-*   Ein **Lazy Learning** Algorithmus: Kein explizites Training nötig.
-*   **Intuition:** "Sag mir, wer deine Nachbarn sind, und ich sag dir, wer du bist."
-*   Funktioniert für:
+*   **Grundkonzept:** Ähnlichkeit führt zu Vorhersage
+*   **Lazy Learner:** Speichert Daten, kein echtes Training
+*   **Non-parametric:** Keine Annahmen über Datenverteilung
+*   **Vielseitig:** Einsetzbar für:
     *   **Klassifikation** (Kategorien)
-    *   **Regression** (Numerische Werte)
+    *   **Regression** (Zahlenwerte)
 
-## Klassifikation vs. Regression
+## Der KNN-Workflow
+
+1.  **K wählen:** Anzahl der Nachbarn festlegen
+2.  **Distanz messen:** Differenz zum Zielpunkt berechnen
+3.  **Sortieren:** Die $K$ nächsten Punkte finden
+4.  **Ergebnis liefern:**
+    *   **Klassifikation:** Mehrheitsvoting
+    *   **Regression:** Mittelwert der Nachbarn
+
+## Distanzmetriken
+
+::: {.columns}
+::: {.column width="60%"}
+*   **Euklidisch:** Der direkte Weg ("Luftlinie")
+    *   $d = \sqrt{\sum (x_i - y_i)^2}$
+*   **Manhattan:** Gitternetz ("Taxicab")
+    *   $d = \sum |x_i - y_i|$
+*   **Minkowski:** Verallgemeinerte Form
+    *   Parametrierbar über $p$
+:::
+
+::: {.column width="40%"}
+![Distanz-Vergleich](https://media.geeksforgeeks.org/wp-content/uploads/20250512150738992167/Calculate-Data.webp)
+:::
+:::
+
+## Die Macht von 'K'
+
+*   **K = 1:** 
+    *   Sehr flexibel, aber störanfällig (Rauschen)
+    *   Gefahr von **Overfitting**
+*   **K = hoch:** 
+    *   Stabile Vorhersagen, aber träge
+    *   Gefahr von **Underfitting**
+*   **Best Practice:**
+    *   Nutze **Cross-Validation**
+    *   Wähle **ungerade** $K$ (Vermeidung von Remis)
+
+## KNN Implementierung (Python)
+
+```python
+import numpy as np
+from collections import Counter
+```
+
+```python
+def euclidean_distance(point1, point2):
+    return np.sqrt(np.sum((np.array(point1) - np.array(point2))**2))
+```
+
+```python
+def knn_predict(training_data, training_labels, test_point, k):
+    distances = []
+    for i in range(len(training_data)):
+        dist = euclidean_distance(test_point, training_data[i])
+        distances.append((dist, training_labels[i]))
+    distances.sort(key=lambda x: x[0])
+    k_nearest_labels = [label for _, label in distances[:k]]
+    return Counter(k_nearest_labels).most_common(1)[0][0]
+```
+
+## Code-Analyse (Schritt für Schritt)
+
+*   **np.linalg.norm:** Effiziente Berechnung der euklidischen Distanz.
+*   **np.argsort:** Sortiert die Abstände und gibt die ursprünglichen Indizes zurück.
+*   **Counter:** Zählt die Vorkommen der Labels in der Nachbarschaft.
+*   **most_common(1):** Liefert das am häufigsten vorkommende Label zurück.
+
+## Pro & Contra
 
 ::: {.columns}
 ::: {.column width="50%"}
-### Klassifikation
-* **Ziel:** Kategorie (Label)
-* **Wahl:** Mehrheitsentscheidung (Voting)
-* **Beispiel:** Apfel oder Birne?
+### [Vorteile]{style="color:green"}
+*   **Simpel:** Leicht zu verstehen
+*   **Vielseitig:** Multi-Klassen möglich
+*   **Anpassungsfähig:** Neue Daten sofort nutzbar
 :::
 
 ::: {.column width="50%"}
-### Regression
-* **Ziel:** Kontinuierlicher Wert
-* **Wahl:** Mittelwert der Nachbarn
-* **Beispiel:** Hauspreis-Vorhersage
+### [Nachteile]{style="color:red"}
+*   **Rechenlast:** Teuer bei Big Data
+*   **Skalierung:** Normalisierung ein Muss!
+*   **Dimensionalität:** Leidet bei zu vielen Features
 :::
 :::
 
-## KNN Regression
+## Wo wird es genutzt?
 
-*   Ziel: Vorhersage eines **kontinuierlichen Wertes**.
-*   **Ablauf:**
-    1.  Finde die $k$ nächsten Nachbarn eines neuen Datenpunkts.
-    2.  Berechne den **Mittelwert** (oder gewichteten Mittelwert) der Zielwerte dieser Nachbarn.
-    3.  Dieser Durchschnitt ist die Vorhersage.
-
-## Die Wahl von $k$
-
-* **Kleines $k$** (z.B. $k=1$): 
-  * Reagiert stark auf Rauschen/Ausreißer.
-  * Risiko von **Overfitting**.
-* **Großes $k$:**
-  * Glättet die Vorhersage zu stark.
-  * Risiko von **Underfitting**.
-* **Tipp:** Bei Klassifikation oft ungerades $k$ wählen (Zünglein an der Waage).
-
-## Warum spielt die Skalierung eine riesige Rolle? {.smaller}
-
-KNN basiert auf **Distanzen** (z.B. Euklidische Distanz).
-
-$$d = \sqrt{\sum_{i=1}^{n} (x_i - y_i)^2}$$
-
-*   **Das Problem:** Merkmale mit großen Zahlenwerten dominieren die Distanzberechnung.
-*   **Beispiel:** 
-    *   Alter (0-100 Jahre) vs. Einkommen (0-100.000 €).
-    *   Ein Unterschied von 1 € im Einkommen wirkt genauso stark wie ein Unterschied von 1 Jahr im Alter, obwohl das Einkommen viel stärker streut.
-*   **Lösung:** Normalisierung oder Standardisierung (z.B. `StandardScaler` oder `MinMaxScaler`).
-
-## Anwendung: Empfehlungssysteme
-
-*   **Streaming-Dienste** (Netflix, Spotify):
-    *   "Nutzer, die diesen Film mochten, schauen auch..."
-    *   Ähnlichkeit wird basierend auf Sehgewohnheiten, Genres und Bewertungen berechnet.
-*   **User-Based Filtering:** Wenn Nutzer A und Nutzer B 90% Übereinstimmung in ihren Vorlieben haben, ist Nutzer B ein "naher Nachbar" von A.
-
-## Vor- und Nachteile
-
-::: {.columns}
-::: {.column width="50%"}
-### Vorteile
-* Einfach & intuitiv.
-* Kein Training nötig (Lazy).
-* Funktioniert für Klassifikation & Regression.
-:::
-
-::: {.column width="50%"}
-### Nachteile
-* Rechenintensiv bei vielen Daten.
-* Sensibel gegenüber Skalierung.
-* "Fluch der Dimensionalität".
-:::
-:::
-
-## Implementierung mit Scikit-Learn
-
-Nutzt die Klasse `KNeighborsRegressor` aus `sklearn.neighbors`.
+*   **Empfehlungen:** "Kunden, die X kauften, kauften auch Y"
+*   **Spam-Filter:** Ähnlichkeit zu bekannten Spam-Mails
+*   **Medizin:** Vergleich von Patientenprofilen
+*   **Genetik:** Klassifizierung von Genmustern
 
 ## Zusammenfassung
 
-*   **Einfach:** Leicht zu verstehen und zu implementieren.
-*   **Sensibel:** Reagiert extrem auf Skalierung und Ausreißer.
-*   **Rechenintensiv:** Langsam bei sehr großen Datensätzen ("Fluch der Dimensionalität").
-*   **Vielseitig:** Perfekt für Empfehlungen und Schätzungen.
+*   Basiert auf **Nachbarschaft**
+*   Wichtigster Parameter: **K**
+*   Kritischer Faktor: **Distanzmetrik & Skalierung**
+*   Ideal für: Kleine, klare Datensätze

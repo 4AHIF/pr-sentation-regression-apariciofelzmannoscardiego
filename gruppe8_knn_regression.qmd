@@ -1,0 +1,676 @@
+---
+title: "K-Nearest Neighbors Regression"
+subtitle: "Vorhersage durch Ähnlichkeit"
+author: "Gruppe 8 - Oscar Aparicio Gergely, Diego Felzmann"
+date: today
+lang: de
+format:
+  revealjs:
+    theme: default
+    hash: true
+    slide-number: true
+    progress: true
+    transition: slide
+    transition-speed: fast
+    highlight-style: github-dark
+    code-line-numbers: true
+    echo: true
+    fig-align: center
+    width: 1280
+    height: 720
+    margin: 0.08
+    footer: "Gruppe 8 · KNN Regression · Oscar Aparicio Gergely & Diego Felzmann"
+execute:
+  warning: false
+  message: false
+---
+
+## {background-color="#1A2E5A"}
+
+::: {style="text-align:left; padding-top: 80px;"}
+
+[Gruppe 8]{style="background:#0E8A7C; color:white; padding:4px 14px; border-radius:6px; font-size:0.7em; font-weight:bold;"}
+
+<div style="color:white; font-size:2.2em; margin-top:20px; margin-bottom:0; font-weight:bold;">K-Nearest Neighbors</div>
+
+<div style="color:#13B5A3; font-size:1.6em; margin-top:0; font-weight:bold;">Regression</div>
+
+*Vorhersage durch Ähnlichkeit*{style="color:#D6ECF0; font-size:1em;"}
+
+:::
+
+::: {style="display:flex; gap:40px; position:absolute; bottom:60px; left:60px;"}
+[🔍 Theorie & Logik]{style="color:#D6ECF0; font-size:0.8em;"}
+[🌍 Anwendungen]{style="color:#D6ECF0; font-size:0.8em;"}
+[💻 Live-Demo]{style="color:#D6ECF0; font-size:0.8em;"}
+:::
+
+---
+
+## Inhaltsverzeichnis
+
+::: {.incremental style="font-size:1.1em; line-height:2.2;"}
+1. 🔍 **Theorie & Logik** — Wie „denkt" KNN?
+2. 📏 **Der k-Parameter** — Wie viele Nachbarn?
+3. ⚖️ **Skalierung** — Warum ist sie so entscheidend?
+4. 🌍 **Anwendungen** — KNN in der echten Welt
+5. 💻 **Live-Demo** — Scikit-Learn, Schritt für Schritt
+6. 📊 **Ergebnisse & Bewertung**
+:::
+
+---
+
+## 🔍 Theorie & Logik {background-color="#1A2E5A"}
+
+*Wie „denkt" KNN?*{style="color:#13B5A3;"}
+
+---
+
+## Die Grundidee
+
+> **„Ähnliche Dinge haben ähnliche Eigenschaften."**
+
+::: {.columns}
+
+::: {.column width="50%"}
+KNN ist ein **instanzbasierter** Algorithmus:
+
+- ❌ Kein explizites Training
+- ✅ Speichert **alle Trainingsdaten**
+- 🔍 Sucht bei Vorhersage die **k ähnlichsten Nachbarn**
+- 📐 Berechnet den **Durchschnitt** ihrer Zielwerte
+
+➡ Auch *"lazy learning"* genannt — der Algorithmus wartet bis zur Vorhersage.
+:::
+
+::: {.column width="50%"}
+```{python}
+#| echo: false
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+import numpy as np
+
+np.random.seed(42)
+fig, ax = plt.subplots(figsize=(5.5, 4.5))
+
+# Training points
+X_train = np.random.rand(30, 2) * 8
+y_train = X_train[:, 0] * 1.5 + np.random.randn(30) * 0.5
+
+scatter = ax.scatter(X_train[:, 0], X_train[:, 1],
+                     c=y_train, cmap='coolwarm', s=80, zorder=3,
+                     edgecolors='white', linewidths=0.8)
+
+# New point
+new_x, new_y = 4.5, 4.0
+ax.scatter([new_x], [new_y], color='#F0A500', s=250,
+           zorder=5, marker='*', label='Neuer Punkt')
+
+# k=3 nearest
+dists = np.sqrt((X_train[:, 0] - new_x)**2 + (X_train[:, 1] - new_y)**2)
+idx = np.argsort(dists)[:3]
+
+# circles
+for i in idx:
+    ax.plot([new_x, X_train[i, 0]], [new_y, X_train[i, 1]],
+            color='#0E8A7C', linewidth=2, linestyle='--', zorder=4)
+    ax.scatter([X_train[i, 0]], [X_train[i, 1]],
+               s=180, zorder=4, edgecolors='#0E8A7C',
+               facecolors='none', linewidths=2.5)
+
+circle = plt.Circle((new_x, new_y), dists[idx[-1]] + 0.1,
+                     fill=False, color='#0E8A7C',
+                     linestyle=':', linewidth=1.5, alpha=0.6)
+ax.add_patch(circle)
+
+plt.colorbar(scatter, ax=ax, label='Zielwert y')
+ax.set_xlabel('Feature 1', fontsize=11)
+ax.set_ylabel('Feature 2', fontsize=11)
+ax.set_title('KNN: k=3 Nachbarn finden', fontsize=12, fontweight='bold')
+ax.legend(fontsize=9)
+ax.set_facecolor('#F7FBFC')
+fig.patch.set_facecolor('white')
+plt.tight_layout()
+plt.show()
+```
+:::
+
+:::
+
+---
+
+## Der Algorithmus Schritt für Schritt
+
+::: {.columns}
+
+::: {.column width="48%"}
+### Vorhersage für Punkt $x$:
+
+::: {style="font-size:0.95em; line-height:1.9;"}
+**① Abstand berechnen**  
+Für alle Trainingspunkte:  
+$$d(x, x_i) = \sqrt{\sum_{j=1}^{p}(x_j - x_{ij})^2}$$
+
+**② Sortieren**  
+Alle Abstände aufsteigend sortieren.
+
+**③ k Nächste auswählen**  
+Die $k$ Punkte mit dem kleinsten Abstand.
+
+**④ Vorhersage mitteln**
+$$\hat{y} = \frac{1}{k} \sum_{i \in \mathcal{N}_k} y_i$$
+:::
+:::
+
+::: {.column width="52%"}
+```{python}
+#| echo: false
+fig, axes = plt.subplots(1, 2, figsize=(6, 4))
+
+np.random.seed(7)
+X = np.random.rand(20) * 10
+y = 2 * X + np.random.randn(20) * 2
+
+for ax, k, col in zip(axes, [1, 7], ['#E74C3C', '#0E8A7C']):
+    from sklearn.neighbors import KNeighborsRegressor
+    knn = KNeighborsRegressor(n_neighbors=k)
+    knn.fit(X.reshape(-1,1), y)
+    x_plot = np.linspace(0, 10, 200).reshape(-1, 1)
+    y_pred = knn.predict(x_plot)
+    ax.scatter(X, y, color='#1A2E5A', s=40, zorder=3, alpha=0.8)
+    ax.plot(x_plot, y_pred, color=col, linewidth=2.5)
+    ax.set_title(f'k = {k}', fontsize=12, fontweight='bold', color=col)
+    ax.set_facecolor('#F7FBFC')
+    ax.set_xlabel('X'); ax.set_ylabel('y')
+
+fig.suptitle('Auswirkung von k auf die Vorhersagekurve', fontsize=11, fontweight='bold')
+plt.tight_layout()
+plt.show()
+```
+:::
+
+:::
+
+---
+
+## Der k-Parameter: Das Herzstück
+
+::: {.columns}
+
+::: {.column width="33%"}
+::: {style="background:#FDECEA; border-left:5px solid #E74C3C; padding:16px; border-radius:4px; font-size:0.9em;"}
+### k zu klein (z.B. k=1)
+
+- Überanpassung (**Overfitting**)
+- Sehr unruhige Kurve
+- Reagiert auf Rauschen
+- Schlechte Generalisierung
+:::
+:::
+
+::: {.column width="33%"}
+::: {style="background:#E8F8F5; border-left:5px solid #0E8A7C; padding:16px; border-radius:4px; font-size:0.9em;"}
+### k optimal
+
+- Gute Balance
+- Glatte, sinnvolle Kurve
+- Gute Vorhersagen
+- Oft via **Cross-Validation** gefunden
+:::
+:::
+
+::: {.column width="33%"}
+::: {style="background:#EBF5FB; border-left:5px solid #2E86C1; padding:16px; border-radius:4px; font-size:0.9em;"}
+### k zu groß (z.B. k=n)
+
+- Unteranpassung (**Underfitting**)
+- Kurve = Durchschnitt aller y
+- Ignoriert lokale Muster
+- Konstante Vorhersage
+:::
+:::
+
+:::
+
+. . .
+
+::: {style="background:#FEF9E7; border:1px solid #F0A500; padding:12px 18px; border-radius:6px; margin-top:20px; font-size:0.95em;"}
+💡 **Faustregel:** k ungerade wählen, um Gleichstände zu vermeiden. Typischer Startpunkt: $k = \sqrt{n}$
+:::
+
+---
+
+## ⚖️ Skalierung — Der kritische Punkt!
+
+::: {.columns}
+
+::: {.column width="50%"}
+### Warum ist Skalierung so wichtig?
+
+KNN misst **Abstände** — verschiedene Einheiten verzerren das Ergebnis massiv!
+
+**Beispiel:**
+```
+Feature 1: Wohnfläche (0–300 m²)
+Feature 2: Zimmeranzahl (1–10)
+```
+
+Ohne Skalierung dominiert Wohnfläche den Abstand, Zimmeranzahl wird ignoriert!
+
+::: {style="margin-top:16px;"}
+**Lösung: StandardScaler**
+
+$$x' = \frac{x - \mu}{\sigma}$$
+
+→ Alle Features haben **Mittelwert 0** und **Standardabweichung 1**
+:::
+:::
+
+::: {.column width="50%"}
+```{python}
+#| echo: false
+import matplotlib.pyplot as plt
+import numpy as np
+
+fig, axes = plt.subplots(1, 2, figsize=(6.5, 4))
+
+np.random.seed(42)
+n = 80
+area = np.random.uniform(40, 300, n)
+rooms = np.random.uniform(1, 8, n)
+price = 1200 * area + 15000 * rooms + np.random.randn(n) * 20000
+
+new_area, new_rooms = 120, 4
+
+for ax, title, a, r in zip(
+    axes,
+    ['Ohne Skalierung\n(Fläche dominiert)', 'Mit Skalierung\n(ausgeglichen)'],
+    [area, (area - area.mean()) / area.std()],
+    [rooms, (rooms - rooms.mean()) / rooms.std()],
+):
+    na = new_area if 'Ohne' in title else (new_area - area.mean()) / area.std()
+    nr = new_rooms if 'Ohne' in title else (new_rooms - rooms.mean()) / rooms.std()
+
+    dists = np.sqrt((a - na)**2 + (r - nr)**2)
+    k_idx = np.argsort(dists)[:3]
+
+    sc = ax.scatter(a, r, c=price/1000, cmap='coolwarm', s=40, alpha=0.7, zorder=2)
+    ax.scatter([na], [nr], color='#F0A500', s=200, zorder=5, marker='*')
+    for i in k_idx:
+        ax.scatter([a[i]], [r[i]], s=160, facecolors='none',
+                   edgecolors='#0E8A7C', linewidths=2.5, zorder=4)
+    ax.set_title(title, fontsize=10, fontweight='bold')
+    ax.set_facecolor('#F7FBFC')
+
+axes[0].set_xlabel('Fläche (m²)'); axes[0].set_ylabel('Zimmer')
+axes[1].set_xlabel('Fläche (normiert)'); axes[1].set_ylabel('Zimmer (normiert)')
+fig.suptitle('Skalierung verändert die Nachbarschaft!', fontsize=11, fontweight='bold')
+plt.tight_layout()
+plt.show()
+```
+:::
+
+:::
+
+---
+
+## 🌍 Anwendungsgebiete {background-color="#1A2E5A"}
+
+*KNN in der echten Welt*{style="color:#13B5A3;"}
+
+---
+
+## Anwendungsgebiete
+
+::: {.columns}
+
+::: {.column width="50%"}
+
+### 🎬 Empfehlungssysteme
+**Hauptanwendung: Streaming-Dienste**
+
+Netflix, Spotify, Amazon Prime nutzen ähnlichkeitsbasierte Systeme:
+
+- „Nutzer, die X gesehen haben, mögen auch Y"
+- Features: Genres, Bewertungen, Sehzeit, Präferenzen
+- KNN findet ähnliche Nutzer → predicted rating
+
+::: {style="background:#E8F8F5; padding:10px 14px; border-radius:6px; margin-top:12px; font-size:0.88em;"}
+**Item-based CF**: Ähnliche Filme  
+**User-based CF**: Ähnliche Nutzer  
+→ beide Varianten basieren auf KNN-Logik
+:::
+
+:::
+
+::: {.column width="50%"}
+
+### Weitere Einsatzgebiete
+
+::: {style="font-size:0.92em; line-height:2;"}
+| Bereich | Anwendung |
+|---|---|
+| 🏠 Immobilien | Hauspreis nach Lage |
+| 🏥 Medizin | Patientenähnlichkeit |
+| 💳 Finanzen | Kreditwürdigkeitsprüfung |
+| 🌾 Landwirtschaft | Ertragsvorhersage |
+| 🔧 Industrie | Anomalie-Erkennung |
+:::
+
+::: {style="background:#FEF9E7; padding:10px 14px; border-radius:6px; font-size:0.88em; margin-top:8px;"}
+⚡ Besonders stark bei **kleinen bis mittleren Datensätzen** mit klarer Ähnlichkeitsstruktur
+:::
+
+:::
+
+:::
+
+---
+
+## 💻 Live-Demo {background-color="#1A2E5A"}
+
+*KNN Regression mit Scikit-Learn*{style="color:#13B5A3;"}
+
+---
+
+## Setup & Datensatz
+
+Wir sagen **Streaming-Bewertungen** anhand von Nutzermerkmalen vorher.
+
+```{python}
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+
+# Reproduzierbarkeit
+np.random.seed(42)
+
+# Synthetischer Datensatz: Empfehlungssystem
+n = 300
+age        = np.random.randint(18, 65, n)          # Alter
+n_ratings  = np.random.randint(10, 500, n)         # Anzahl bisheriger Bewertungen
+avg_rating = np.random.uniform(1, 5, n)            # Ø-Bewertung des Nutzers
+genre_pref = np.random.uniform(0, 1, n)            # Vorliebe für Drama (0-1)
+
+# Zielvariable: vorhergesagte Bewertung eines neuen Films (1–5 Sterne)
+rating = (
+    0.015 * age
+    + 0.003 * n_ratings
+    + 0.6  * avg_rating
+    + 0.8  * genre_pref
+    + np.random.randn(n) * 0.4
+).clip(1, 5)
+
+df = pd.DataFrame({
+    "Alter": age, "Anzahl_Bewertungen": n_ratings,
+    "Durchschnittsbewertung": avg_rating, "Genre_Präferenz": genre_pref,
+    "Zielbewertung": rating
+})
+
+print(df.head(6).round(2).to_string(index=False))
+print(f"\nDatensatz: {df.shape[0]} Beobachtungen, {df.shape[1]-1} Features")
+```
+
+---
+
+## Preprocessing & Training
+
+```{python}
+# Features und Zielgröße
+X = df[["Alter", "Anzahl_Bewertungen", "Durchschnittsbewertung", "Genre_Präferenz"]]
+y = df["Zielbewertung"]
+
+# Train / Test Split (80:20)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+# ⚠️ Skalierung ist bei KNN PFLICHT!
+scaler  = StandardScaler()
+X_train_s = scaler.fit_transform(X_train)   # fit NUR auf Trainingsdaten!
+X_test_s  = scaler.transform(X_test)        # transform auf Testdaten
+
+# KNN Modell trainieren
+knn = KNeighborsRegressor(
+    n_neighbors=7,        # k = 7 Nachbarn
+    metric="euclidean",   # Euklidischer Abstand
+    weights="uniform"     # alle Nachbarn gleich gewichtet
+)
+
+knn.fit(X_train_s, y_train)
+y_pred = knn.predict(X_test_s)
+
+print("✅ Modell trainiert!")
+print(f"   Trainingsdaten:  {X_train_s.shape[0]} Beobachtungen")
+print(f"   Testdaten:       {X_test_s.shape[0]} Beobachtungen")
+```
+
+---
+
+## Ergebnisse & Metriken
+
+```{python}
+# Evaluierungsmetriken
+r2  = r2_score(y_test, y_pred)
+mae = mean_absolute_error(y_test, y_pred)
+mse = mean_squared_error(y_test, y_pred)
+rmse = np.sqrt(mse)
+
+print("=" * 38)
+print("      Modell-Evaluierung (k=7)")
+print("=" * 38)
+print(f"  R²   (Bestimmtheitsmaß):  {r2:.4f}")
+print(f"  MAE  (Ø absoluter Fehler): {mae:.4f} Sterne")
+print(f"  MSE  (mittl. Quadratfehler): {mse:.4f}")
+print(f"  RMSE (Wurzel-MSE):         {rmse:.4f} Sterne")
+print("=" * 38)
+
+# Beispielvorhersage
+beispiel = np.array([[28, 150, 3.8, 0.7]])
+beispiel_s = scaler.transform(beispiel)
+pred_rating = knn.predict(beispiel_s)[0]
+print(f"\n🎬 Beispiel-Nutzer:")
+print(f"   Alter: 28, Bewertungen: 150, Ø: 3.8, Genre: 0.7")
+print(f"   ⭐ Vorhergesagte Bewertung: {pred_rating:.2f} von 5 Sternen")
+```
+
+---
+
+## k optimieren mit Cross-Validation
+
+```{python}
+#| fig-width: 8
+#| fig-height: 3.5
+k_values = range(1, 31)
+train_scores, test_scores = [], []
+
+for k in k_values:
+    model = KNeighborsRegressor(n_neighbors=k)
+    # Negative MSE (sklearn konvention)
+    cv_scores = cross_val_score(model, X_train_s, y_train,
+                                cv=5, scoring="r2")
+    test_scores.append(cv_scores.mean())
+
+    model.fit(X_train_s, y_train)
+    train_scores.append(r2_score(y_train, model.predict(X_train_s)))
+
+best_k = list(k_values)[np.argmax(test_scores)]
+
+fig, ax = plt.subplots(figsize=(9, 3.8))
+ax.plot(k_values, train_scores, color="#E74C3C", linewidth=2.5,
+        marker="o", markersize=4, label="Training R²")
+ax.plot(k_values, test_scores, color="#0E8A7C", linewidth=2.5,
+        marker="s", markersize=4, label="CV Test R² (5-fold)")
+ax.axvline(best_k, color="#F0A500", linewidth=2, linestyle="--",
+           label=f"Bestes k = {best_k}")
+ax.axvspan(1, 4, alpha=0.08, color="#E74C3C", label="Overfitting-Zone")
+ax.axvspan(20, 30, alpha=0.08, color="#2E86C1", label="Underfitting-Zone")
+ax.set_xlabel("k (Anzahl Nachbarn)", fontsize=11)
+ax.set_ylabel("R²", fontsize=11)
+ax.set_title("Modellkomplexität vs. k — Bias-Varianz-Tradeoff", fontsize=12, fontweight="bold")
+ax.legend(fontsize=9)
+ax.set_facecolor("#F7FBFC")
+fig.patch.set_facecolor("white")
+plt.tight_layout()
+plt.show()
+print(f"➡ Bestes k = {best_k} mit CV-R² = {max(test_scores):.4f}")
+```
+
+---
+
+## Vorhersage vs. Tatsächliche Werte
+
+```{python}
+#| fig-width: 9
+#| fig-height: 4
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4.2))
+
+# Scatter: Predicted vs Actual
+ax1.scatter(y_test, y_pred, color="#1A2E5A", alpha=0.5, s=40, edgecolors="white", linewidths=0.5)
+lims = [min(y_test.min(), y_pred.min()), max(y_test.max(), y_pred.max())]
+ax1.plot(lims, lims, color="#0E8A7C", linewidth=2, linestyle="--", label="Ideal")
+ax1.set_xlabel("Tatsächliche Bewertung", fontsize=11)
+ax1.set_ylabel("Vorhergesagte Bewertung", fontsize=11)
+ax1.set_title("Predicted vs. Actual", fontsize=12, fontweight="bold")
+ax1.legend(); ax1.set_facecolor("#F7FBFC")
+ax1.text(0.05, 0.93, f"R² = {r2:.3f}", transform=ax1.transAxes,
+         fontsize=11, color="#0E8A7C", fontweight="bold")
+
+# Residuals
+residuals = y_test - y_pred
+ax2.hist(residuals, bins=25, color="#0E8A7C", alpha=0.8, edgecolor="white")
+ax2.axvline(0, color="#E74C3C", linewidth=2, linestyle="--")
+ax2.set_xlabel("Residuum (Tatsächlich − Vorhersage)", fontsize=11)
+ax2.set_ylabel("Häufigkeit", fontsize=11)
+ax2.set_title("Residuenverteilung", fontsize=12, fontweight="bold")
+ax2.set_facecolor("#F7FBFC")
+ax2.text(0.05, 0.93, f"MAE = {mae:.3f}", transform=ax2.transAxes,
+         fontsize=11, color="#1A2E5A", fontweight="bold")
+
+fig.patch.set_facecolor("white")
+plt.tight_layout()
+plt.show()
+```
+
+---
+
+## Wichtige Sklearn-Parameter
+
+```{python}
+#| eval: false
+from sklearn.neighbors import KNeighborsRegressor
+
+knn = KNeighborsRegressor(
+    n_neighbors = 7,         # k: Anzahl der Nachbarn
+    weights     = "uniform", # "uniform" oder "distance"
+                             #   distance → nähere Nachbarn zählen mehr
+    metric      = "euclidean", # Abstandsmaß
+                             # weitere: "manhattan", "minkowski"
+    algorithm   = "auto",    # Suchstruktur: "ball_tree", "kd_tree", "brute"
+    p           = 2,         # Potenz für Minkowski (2 = euklidisch)
+    n_jobs      = -1         # Parallelisierung (-1 = alle Kerne)
+)
+```
+
+::: {style="margin-top:20px;"}
+| Parameter | Empfehlung |
+|---|---|
+| `n_neighbors` | Per Cross-Validation bestimmen |
+| `weights="distance"` | Oft besser als `"uniform"` |
+| `metric` | Euklidisch für skalierte Features |
+| `algorithm="kd_tree"` | Schneller für große Datensätze |
+:::
+
+---
+
+## 📊 Zusammenfassung {background-color="#1A2E5A"}
+
+---
+
+## Stärken & Schwächen
+
+::: {.columns}
+
+::: {.column width="50%"}
+### ✅ Stärken
+
+::: {style="font-size:0.95em; line-height:2;"}
+- **Kein Training** nötig (lazy learning)
+- **Einfach zu verstehen** und zu erklären
+- **Nicht-parametrisch** — keine Annahmen über Datenverteilung
+- **Flexibel** — passt sich lokalen Mustern an
+- Gut bei **kleinen Datensätzen**
+:::
+:::
+
+::: {.column width="50%"}
+### ❌ Schwächen
+
+::: {style="font-size:0.95em; line-height:2;"}
+- **Langsam bei großen Datensätzen** (O(n) pro Vorhersage)
+- **Skalierung zwingend erforderlich**
+- **Curse of Dimensionality** — versagt bei vielen Features
+- **Speicherintensiv** — alle Daten bleiben im Gedächtnis
+- **k muss manuell gewählt** werden
+:::
+:::
+
+:::
+
+. . .
+
+::: {style="background:#E8F8F5; border-left:5px solid #0E8A7C; padding:14px 18px; border-radius:4px; margin-top:20px; font-size:0.95em;"}
+**Fazit:** KNN Regression ist ein intuitiver, leistungsfähiger Einstieg in ML — besonders geeignet, wenn Ähnlichkeit das Kernprinzip ist. **Immer skalieren!**
+:::
+
+---
+
+## Checkliste für KNN in der Praxis
+
+::: {style="font-size:1em; line-height:2.2;"}
+☑ **Daten skalieren** (`StandardScaler` oder `MinMaxScaler`)
+
+☑ **k via Cross-Validation** wählen
+
+☑ **`weights="distance"`** ausprobieren (oft besser als uniform)
+
+☑ **Dimensionen prüfen** — bei > 20 Features Feature Selection erwägen
+
+☑ **Metriken vergleichen**: R², MAE, RMSE
+
+☑ **Baseline vergleichen** (z.B. Mittelwert-Vorhersage)
+:::
+
+---
+
+## Danke! {background-color="#1A2E5A"}
+
+::: {style="text-align:center; padding-top:40px;"}
+
+[Gruppe 8 · KNN Regression]{style="color:#13B5A3; font-size:1.3em; font-weight:bold;"}
+
+*„Tell me who your neighbors are, and I'll tell you your value."*{style="color:#D6ECF0; font-size:1.1em; display:block; margin-top:20px; margin-bottom:40px;"}
+
+### Fragen? {style="color:white;"}
+
+::: {style="display:flex; justify-content:center; gap:60px; margin-top:30px; font-size:0.95em;"}
+
+::: {}
+🔍 **Theorie** behandelt  
+📐 Distanz & k-Parameter  
+⚖️ Skalierung erklärt  
+:::
+
+::: {}
+🌍 **Anwendung** gezeigt  
+🎬 Streaming-Empfehlungen  
+📊 Metriken interpretiert  
+:::
+
+:::
+
+:::
