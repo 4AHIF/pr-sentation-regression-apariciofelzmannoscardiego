@@ -40,9 +40,9 @@ execute:
 :::
 
 ::: {style="display:flex; gap:40px; position:absolute; bottom:60px; left:60px;"}
-[🔍 Theorie & Logik]{style="color:#D6ECF0; font-size:0.8em;"}
-[🌍 Anwendungen]{style="color:#D6ECF0; font-size:0.8em;"}
-[💻 Live-Demo]{style="color:#D6ECF0; font-size:0.8em;"}
+[Theorie & Logik]{style="color:#D6ECF0; font-size:0.8em;"}
+[Anwendungen]{style="color:#D6ECF0; font-size:0.8em;"}
+[Live-Demo]{style="color:#D6ECF0; font-size:0.8em;"}
 :::
 
 ---
@@ -50,17 +50,17 @@ execute:
 ## Inhaltsverzeichnis
 
 ::: {.incremental style="font-size:1.1em; line-height:2.2;"}
-1. 🔍 **Theorie & Logik** — Wie „denkt" KNN?
+1. **Theorie & Logik** — Wie „denkt" KNN?
 2. 📏 **Der k-Parameter** — Wie viele Nachbarn?
 3. ⚖️ **Skalierung** — Warum ist sie so entscheidend?
-4. 🌍 **Anwendungen** — KNN in der echten Welt
-5. 💻 **Live-Demo** — Scikit-Learn, Schritt für Schritt
-6. 📊 **Ergebnisse & Bewertung**
+4. **Anwendungen** — KNN in der echten Welt
+5. **Live-Demo** — Scikit-Learn, Schritt für Schritt
+6. **Ergebnisse & Bewertung**
 :::
 
 ---
 
-## 🔍 Theorie & Logik {background-color="#1A2E5A"}
+## Theorie & Logik {background-color="#1A2E5A"}
 
 *Wie „denkt" KNN?*{style="color:#13B5A3;"}
 
@@ -75,12 +75,12 @@ execute:
 ::: {.column width="50%"}
 KNN ist ein **instanzbasierter** Algorithmus:
 
-- ❌ Kein explizites Training
-- ✅ Speichert **alle Trainingsdaten**
-- 🔍 Sucht bei Vorhersage die **k ähnlichsten Nachbarn**
-- 📐 Berechnet den **Durchschnitt** ihrer Zielwerte
+- Kein explizites Training
+- Speichert **alle Trainingsdaten**
+- Sucht bei Vorhersage die **k ähnlichsten Nachbarn**
+- Berechnet den **Durchschnitt** ihrer Zielwerte
 
-➡ Auch *"lazy learning"* genannt — der Algorithmus wartet bis zur Vorhersage.
+Auch *"lazy learning"* genannt — der Algorithmus wartet bis zur Vorhersage.
 :::
 
 ::: {.column width="50%"}
@@ -235,7 +235,7 @@ plt.show()
 . . .
 
 ::: {style="background:#FEF9E7; border:1px solid #F0A500; padding:12px 18px; border-radius:6px; margin-top:20px; font-size:0.95em;"}
-💡 **Faustregel:** k ungerade wählen, um Gleichstände zu vermeiden. Typischer Startpunkt: $k = \sqrt{n}$
+**Faustregel:** k ungerade wählen, um Gleichstände zu vermeiden. Typischer Startpunkt: $k = \sqrt{n}$
 :::
 
 ---
@@ -314,7 +314,7 @@ plt.show()
 
 ---
 
-## 🌍 Anwendungsgebiete {background-color="#1A2E5A"}
+## Anwendungsgebiete {background-color="#1A2E5A"}
 
 *KNN in der echten Welt*{style="color:#13B5A3;"}
 
@@ -326,7 +326,7 @@ plt.show()
 
 ::: {.column width="50%"}
 
-### 🎬 Empfehlungssysteme
+### Empfehlungssysteme
 **Hauptanwendung: Streaming-Dienste**
 
 Netflix, Spotify, Amazon Prime nutzen ähnlichkeitsbasierte Systeme:
@@ -350,11 +350,11 @@ Netflix, Spotify, Amazon Prime nutzen ähnlichkeitsbasierte Systeme:
 ::: {style="font-size:0.92em; line-height:2;"}
 | Bereich | Anwendung |
 |---|---|
-| 🏠 Immobilien | Hauspreis nach Lage |
-| 🏥 Medizin | Patientenähnlichkeit |
-| 💳 Finanzen | Kreditwürdigkeitsprüfung |
-| 🌾 Landwirtschaft | Ertragsvorhersage |
-| 🔧 Industrie | Anomalie-Erkennung |
+| Immobilien | Hauspreis nach Lage |
+| Medizin | Patientenähnlichkeit |
+| Finanzen | Kreditwürdigkeitsprüfung |
+| Landwirtschaft | Ertragsvorhersage |
+| Industrie | Anomalie-Erkennung |
 :::
 
 ::: {style="background:#FEF9E7; padding:10px 14px; border-radius:6px; font-size:0.88em; margin-top:8px;"}
@@ -367,7 +367,7 @@ Netflix, Spotify, Amazon Prime nutzen ähnlichkeitsbasierte Systeme:
 
 ---
 
-## 💻 Live-Demo {background-color="#1A2E5A"}
+## Live-Demo {background-color="#1A2E5A"}
 
 *KNN Regression mit Scikit-Learn*{style="color:#13B5A3;"}
 
@@ -444,7 +444,7 @@ knn = KNeighborsRegressor(
 knn.fit(X_train_s, y_train)
 y_pred = knn.predict(X_test_s)
 
-print("✅ Modell trainiert!")
+print("Modell trainiert!")
 print(f"   Trainingsdaten:  {X_train_s.shape[0]} Beobachtungen")
 print(f"   Testdaten:       {X_test_s.shape[0]} Beobachtungen")
 ```
@@ -473,9 +473,9 @@ print("=" * 38)
 beispiel = np.array([[28, 150, 3.8, 0.7]])
 beispiel_s = scaler.transform(beispiel)
 pred_rating = knn.predict(beispiel_s)[0]
-print(f"\n🎬 Beispiel-Nutzer:")
+print(f"\nBeispiel-Nutzer:")
 print(f"   Alter: 28, Bewertungen: 150, Ø: 3.8, Genre: 0.7")
-print(f"   ⭐ Vorhergesagte Bewertung: {pred_rating:.2f} von 5 Sternen")
+print(f"   Vorhergesagte Bewertung: {pred_rating:.2f} von 5 Sternen")
 ```
 
 ---
@@ -517,7 +517,7 @@ ax.set_facecolor("#F7FBFC")
 fig.patch.set_facecolor("white")
 plt.tight_layout()
 plt.show()
-print(f"➡ Bestes k = {best_k} mit CV-R² = {max(test_scores):.4f}")
+print(f"Bestes k = {best_k} mit CV-R² = {max(test_scores):.4f}")
 ```
 
 ---
@@ -587,7 +587,7 @@ knn = KNeighborsRegressor(
 
 ---
 
-## 📊 Zusammenfassung {background-color="#1A2E5A"}
+## Zusammenfassung {background-color="#1A2E5A"}
 
 ---
 
@@ -596,7 +596,7 @@ knn = KNeighborsRegressor(
 ::: {.columns}
 
 ::: {.column width="50%"}
-### ✅ Stärken
+### Stärken
 
 ::: {style="font-size:0.95em; line-height:2;"}
 - **Kein Training** nötig (lazy learning)
@@ -608,7 +608,7 @@ knn = KNeighborsRegressor(
 :::
 
 ::: {.column width="50%"}
-### ❌ Schwächen
+### Schwächen
 
 ::: {style="font-size:0.95em; line-height:2;"}
 - **Langsam bei großen Datensätzen** (O(n) pro Vorhersage)
@@ -660,15 +660,15 @@ knn = KNeighborsRegressor(
 ::: {style="display:flex; justify-content:center; gap:60px; margin-top:30px; font-size:0.95em;"}
 
 ::: {}
-🔍 **Theorie** behandelt  
-📐 Distanz & k-Parameter  
+**Theorie** behandelt  
+Distanz & k-Parameter  
 ⚖️ Skalierung erklärt  
 :::
 
 ::: {}
-🌍 **Anwendung** gezeigt  
-🎬 Streaming-Empfehlungen  
-📊 Metriken interpretiert  
+**Anwendung** gezeigt  
+Streaming-Empfehlungen  
+Metriken interpretiert  
 :::
 
 :::
