@@ -51,8 +51,8 @@ execute:
 
 ::: {.incremental style="font-size:1.1em; line-height:2.2;"}
 1. **Theorie & Logik** — Wie „denkt" KNN?
-2. 📏 **Der k-Parameter** — Wie viele Nachbarn?
-3. ⚖️ **Skalierung** — Warum ist sie so entscheidend?
+2. **Der k-Parameter** — Wie viele Nachbarn?
+3. **Skalierung** — Warum ist sie so entscheidend?
 4. **Anwendungen** — KNN in der echten Welt
 5. **Live-Demo** — Scikit-Learn, Schritt für Schritt
 6. **Ergebnisse & Bewertung**
@@ -62,7 +62,7 @@ execute:
 
 ## Theorie & Logik {background-color="#1A2E5A"}
 
-*Wie „denkt" KNN?*{style="color:#13B5A3;"}
+*Wie „denkt" KNN?* 
 
 ---
 
@@ -144,20 +144,20 @@ plt.show()
 ::: {.columns}
 
 ::: {.column width="48%"}
-### Vorhersage für Punkt $x$:
+<h3 style="margin-top:0;">Vorhersage für Punkt $x$:</h3>
 
 ::: {style="font-size:0.95em; line-height:1.9;"}
-**① Abstand berechnen**  
+**Abstand berechnen**  
 Für alle Trainingspunkte:  
 $$d(x, x_i) = \sqrt{\sum_{j=1}^{p}(x_j - x_{ij})^2}$$
 
-**② Sortieren**  
+**Sortieren**  
 Alle Abstände aufsteigend sortieren.
 
-**③ k Nächste auswählen**  
+**k Nächste auswählen**  
 Die $k$ Punkte mit dem kleinsten Abstand.
 
-**④ Vorhersage mitteln**
+**Vorhersage mitteln**
 $$\hat{y} = \frac{1}{k} \sum_{i \in \mathcal{N}_k} y_i$$
 :::
 :::
@@ -199,7 +199,7 @@ plt.show()
 
 ::: {.column width="33%"}
 ::: {style="background:#FDECEA; border-left:5px solid #E74C3C; padding:16px; border-radius:4px; font-size:0.9em;"}
-### k zu klein (z.B. k=1)
+<h3 style="margin-top:0;">k zu klein (z.B. k=1)</h3>
 
 - Überanpassung (**Overfitting**)
 - Sehr unruhige Kurve
@@ -210,7 +210,7 @@ plt.show()
 
 ::: {.column width="33%"}
 ::: {style="background:#E8F8F5; border-left:5px solid #0E8A7C; padding:16px; border-radius:4px; font-size:0.9em;"}
-### k optimal
+<h3 style="margin-top:0;">k optimal</h3>
 
 - Gute Balance
 - Glatte, sinnvolle Kurve
@@ -221,7 +221,7 @@ plt.show()
 
 ::: {.column width="33%"}
 ::: {style="background:#EBF5FB; border-left:5px solid #2E86C1; padding:16px; border-radius:4px; font-size:0.9em;"}
-### k zu groß (z.B. k=n)
+<h3 style="margin-top:0;">k zu groß (z.B. k=n)</h3>
 
 - Unteranpassung (**Underfitting**)
 - Kurve = Durchschnitt aller y
@@ -240,12 +240,12 @@ plt.show()
 
 ---
 
-## ⚖️ Skalierung — Der kritische Punkt!
+## Skalierung — Der kritische Punkt!
 
 ::: {.columns}
 
 ::: {.column width="50%"}
-### Warum ist Skalierung so wichtig?
+<h3 style="margin-top:0;">Warum ist Skalierung so wichtig?</h3>
 
 KNN misst **Abstände** — verschiedene Einheiten verzerren das Ergebnis massiv!
 
@@ -326,7 +326,7 @@ plt.show()
 
 ::: {.column width="50%"}
 
-### Empfehlungssysteme
+<h3 style="margin-top:0;">Empfehlungssysteme</h3>
 **Hauptanwendung: Streaming-Dienste**
 
 Netflix, Spotify, Amazon Prime nutzen ähnlichkeitsbasierte Systeme:
@@ -345,7 +345,7 @@ Netflix, Spotify, Amazon Prime nutzen ähnlichkeitsbasierte Systeme:
 
 ::: {.column width="50%"}
 
-### Weitere Einsatzgebiete
+<h3 style="margin-top:0;">Weitere Einsatzgebiete</h3>
 
 ::: {style="font-size:0.92em; line-height:2;"}
 | Bereich | Anwendung |
@@ -429,7 +429,7 @@ X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42
 )
 
-# ⚠️ Skalierung ist bei KNN PFLICHT!
+# Skalierung ist bei KNN PFLICHT!
 scaler  = StandardScaler()
 X_train_s = scaler.fit_transform(X_train)   # fit NUR auf Trainingsdaten!
 X_test_s  = scaler.transform(X_test)        # transform auf Testdaten
@@ -596,7 +596,7 @@ knn = KNeighborsRegressor(
 ::: {.columns}
 
 ::: {.column width="50%"}
-### Stärken
+<h3 style="margin-top:0;">Stärken</h3>
 
 ::: {style="font-size:0.95em; line-height:2;"}
 - **Kein Training** nötig (lazy learning)
@@ -608,7 +608,7 @@ knn = KNeighborsRegressor(
 :::
 
 ::: {.column width="50%"}
-### Schwächen
+<h3 style="margin-top:0;">Schwächen</h3>
 
 ::: {style="font-size:0.95em; line-height:2;"}
 - **Langsam bei großen Datensätzen** (O(n) pro Vorhersage)
@@ -632,45 +632,19 @@ knn = KNeighborsRegressor(
 ## Checkliste für KNN in der Praxis
 
 ::: {style="font-size:1em; line-height:2.2;"}
-☑ **Daten skalieren** (`StandardScaler` oder `MinMaxScaler`)
+**Daten skalieren** (`StandardScaler` oder `MinMaxScaler`)
 
-☑ **k via Cross-Validation** wählen
+**k via Cross-Validation** wählen
 
-☑ **`weights="distance"`** ausprobieren (oft besser als uniform)
+**`weights="distance"`** ausprobieren (oft besser als uniform)
 
-☑ **Dimensionen prüfen** — bei > 20 Features Feature Selection erwägen
+**Dimensionen prüfen** — bei > 20 Features Feature Selection erwägen
 
-☑ **Metriken vergleichen**: R², MAE, RMSE
+**Metriken vergleichen**: R², MAE, RMSE
 
-☑ **Baseline vergleichen** (z.B. Mittelwert-Vorhersage)
+**Baseline vergleichen** (z.B. Mittelwert-Vorhersage)
 :::
 
 ---
 
 ## Danke! {background-color="#1A2E5A"}
-
-::: {style="text-align:center; padding-top:40px;"}
-
-[Gruppe 8 · KNN Regression]{style="color:#13B5A3; font-size:1.3em; font-weight:bold;"}
-
-*„Tell me who your neighbors are, and I'll tell you your value."*{style="color:#D6ECF0; font-size:1.1em; display:block; margin-top:20px; margin-bottom:40px;"}
-
-### Fragen? {style="color:white;"}
-
-::: {style="display:flex; justify-content:center; gap:60px; margin-top:30px; font-size:0.95em;"}
-
-::: {}
-**Theorie** behandelt  
-Distanz & k-Parameter  
-⚖️ Skalierung erklärt  
-:::
-
-::: {}
-**Anwendung** gezeigt  
-Streaming-Empfehlungen  
-Metriken interpretiert  
-:::
-
-:::
-
-:::
