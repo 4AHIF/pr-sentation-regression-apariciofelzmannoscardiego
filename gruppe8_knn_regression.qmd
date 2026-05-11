@@ -23,6 +23,17 @@ execute:
   message: false
 ---
 
+## Inhaltsverzeichnis
+
+1. Was ist KNN?
+2. Der k-Parameter
+3. Distanzmetriken
+4. Implementierung
+5. Anwendungen
+6. Stärken & Schwächen
+
+---
+
 ## {background-color="#1A2E5A"}
 
 <div style="display:flex; height:70%; align-items:center; justify-content:center;">
@@ -171,8 +182,7 @@ $$d(x, y) = \left(\sum_{i=1}^{p} |x_i - y_i|^{p}\right)^{1/p}$$
 
 ---
 
-## Python — Von Grund auf
-
+## Python
 ```{python}
 #| eval: false
 import numpy as np
@@ -300,17 +310,6 @@ KNN überall dort stark, wo **Ähnlichkeit** das Kernprinzip ist.
 :::
 
 :::
-
----
-
-## Zusammenfassung
-
-- **Lazy Learner** — kein Training, alles bei Vorhersage
-- **Nicht-parametrisch** — keine Verteilungsannahmen
-- **k** per Cross-Validation oder Elbow-Methode
-- **Skalierung ist Pflicht**
-- **Euklidisch** als Standardmaß
-- Klein-k → Overfitting · Groß-k → Underfitting
 
 ---
 
