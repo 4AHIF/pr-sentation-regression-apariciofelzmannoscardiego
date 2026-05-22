@@ -13,7 +13,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 # KNN-Modell erstellen und trainieren 
-knn = KNeighborsClassifier(n_neighbors=90)
+knn = KNeighborsClassifier(n_neighbors=10)
 knn.fit(X_train, y_train)
 
 # Vorhersagen 
@@ -22,6 +22,6 @@ y_pred = knn.predict(X_test)
 print(f"Genauigkeit: {accuracy_score(y_test, y_pred) * 100}%")
 
 # Neue Blume klassifizieren
-neue_blume = np.array([[5.1, 3.5, 1.4, 0.2]])
+neue_blume = np.array([[5.1, 5.5, 5.4, 5.2]])
 vorhersage = knn.predict(neue_blume)
 print(f"Neue Blume -> {iris.target_names[vorhersage[0]]}")
